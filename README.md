@@ -116,10 +116,10 @@ git push heroku main
 
 ---
 
-## **📌 Contributors**
-👤 **Your Name** – *Developer*  
-📧 Contact: [your-email@example.com](mailto:your-email@example.com)  
-
+## **🎯 Author**
+👤 **MANISH M NAIK** – *Developer*  
+📧 Contact: [your-manishmnaik20@gmail.com](mailto:your-manishmnaik20@gmail.com)  
+🔗 [https://github.com/manishnaik20]
 ---
 
 ## **📌 License**
