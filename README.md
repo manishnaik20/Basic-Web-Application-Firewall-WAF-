@@ -1,234 +1,214 @@
-# Basic-Web-Application-Firewall-WAF
-# **Web Application Firewall (WAF) - Complete Guide
-## Building and Deploying a WAF using Python & Flask
+A Web Application Firewall (WAF) is a security system designed to monitor and filter HTTP traffic between a web application and the internet, providing an extra layer of protection against common web application attacks like SQL injection, Cross-Site Scripting (XSS), and Cross-Site Request Forgery (CSRF). Developing a basic WAF as a project can be a great hands-on way to understand web application security and HTTP traffic filtering.
+
+Below is a detailed guide on how to build and execute a Web Application Firewall (WAF) project.
 
 ---
 
-## **📌 1. Project Overview**
-### **Objective**
-This project aims to create a **Web Application Firewall (WAF)** that monitors and filters **HTTP requests** to protect a web application from common web attacks like:
-- **SQL Injection**
-- **Cross-Site Scripting (XSS)**
-- **IP Blocking**
-- **Rate Limiting**
+### *Project: Building a Basic Web Application Firewall (WAF)*
 
-### **Technologies Used**
-- **Programming Language**: Python
-- **Framework**: Flask
-- **Libraries**: Regular Expressions (Regex), Flask-Limiter (for rate limiting)
-- **Deployment Options**: Heroku, AWS, or a local server
+#### *Objective:*
+To build a simple Web Application Firewall that can detect and filter common web-based attacks, such as SQL injection, XSS, and others.
+
+#### *Tools & Technologies:*
+- *Programming Language:* Python (using Flask for the web app and libraries for filtering traffic)
+- *Web Framework:* Flask (for the web application that the WAF will protect)
+- *WAF Logic:* Custom Python code to analyze and block malicious HTTP requests
+- *Other Tools*: Regular expressions (Regex), HTTP libraries, and firewall rule sets
 
 ---
 
-## **📌 2. Setting Up the Development Environment**
-### **Step 1: Install Required Software**
-#### ✅ Install Python (If not installed)
-1. Check if Python is installed:
-   ```bash
-   python --version
-   ```
-   OR  
-   ```bash
-   python3 --version
-   ```
-2. If Python is not installed, download it from:
-   👉 [Python Official Website](https://www.python.org/downloads/)
-
-#### ✅ Install Git (For Deployment)
-1. Check if Git is installed:
-   ```bash
-   git --version
-   ```
-2. If Git is not installed, download it from:
-   👉 [Git Official Website](https://git-scm.com/downloads)
-
-#### ✅ Install Heroku CLI (Optional for Deployment)
-1. Check if Heroku CLI is installed:
-   ```bash
-   heroku --version
-   ```
-2. If not installed, download it from:
-   👉 [Heroku CLI Download](https://devcenter.heroku.com/articles/heroku-cli)
+### *Step-by-Step Execution:*
 
 ---
 
-## **📌 3. Creating the WAF Project**
-### **Step 2: Create a Project Directory**
-1. Open **Command Prompt (CMD) / Terminal** and create a project folder:
-   ```bash
+### *1. Set Up Your Development Environment*
+
+1. *Install Python*: Make sure Python 3.x is installed on your system. You can download it from the [official Python website](https://www.python.org/downloads/).
+   
+2. *Install Flask*: Flask will be used to set up the basic web application.
+   bash
+   pip install Flask
+   
+
+3. *Create a Project Directory*: Create a folder for your project to keep everything organized.
+   bash
    mkdir web_app_firewall
    cd web_app_firewall
-   ```
+   
 
-### **Step 3: Set Up a Virtual Environment**
-1. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   ```
-2. Activate the virtual environment:
-   - **Windows**:
-     ```bash
-     venv\Scripts\activate
-     ```
-   - **Mac/Linux**:
-     ```bash
-     source venv/bin/activate
-     ```
-
-### **Step 4: Install Required Python Packages**
-1. Install Flask and dependencies:
-   ```bash
-   pip install Flask flask-limiter gunicorn
-   ```
+4. *Create Virtual Environment (Optional but recommended)*:
+   bash
+   python3 -m venv venv
+   source venv/bin/activate  # For Linux/MacOS
+   venv\Scripts\activate  # For Windows
+   
 
 ---
 
-## **📌 4. Creating the Web Application**
-### **Step 5: Create `app.py`**
-1. Inside the **web_app_firewall** folder, create a new file named **app.py** and add:
+### *2. Create a Basic Web Application*
 
-```python
-from flask import Flask, request, abort
-from waf import detect_sql_injection, detect_xss, block_ip
-from flask_limiter import Limiter
+1. **Create a app.py file**:
+   This file will contain the basic Flask web application that the WAF will protect.
+   
+   python
+   from flask import Flask, request
 
-app = Flask(__name__)
-limiter = Limiter(app, key_func=lambda: request.remote_addr)
+   app = Flask(__name__)
 
-@app.before_request
-def check_security():
-    user_ip = request.remote_addr
+   @app.route('/')
+   def home():
+       return "Welcome to the Web App!"
 
-    if block_ip(user_ip):
-        abort(403, description="Your IP is blocked.")
+   @app.route('/submit', methods=['POST'])
+   def submit():
+       user_input = request.form.get('user_input')
+       return f"You entered: {user_input}"
 
-    for key in request.form.keys():
-        if detect_sql_injection(request.form[key]):
-            abort(400, description="SQL Injection detected.")
-        if detect_xss(request.form[key]):
-            abort(400, description="XSS detected.")
+   if __name__ == '__main__':
+       app.run(debug=True)
+   
 
-@app.route('/')
-def home():
-    return "Welcome to the Web App!"
-
-@app.route('/submit', methods=['POST'])
-def submit():
-    user_input = request.form.get('user_input')
-    return f"You entered: {user_input}"
-
-if __name__ == '__main__':
-    app.run(debug=True)
-```
-
----
-
-### **Step 6: Create `waf.py` (WAF Logic)**
-1. Inside the **web_app_firewall** folder, create **waf.py** and add:
-
-```python
-import re
-
-SQL_INJECTION_PATTERN = r"(\bselect\b|\binsert\b|\bunion\b|\b--\b|\b;\b|\bdrop\b)"
-XSS_PATTERN = r"<script.*?>.*?</script>"
-BLOCKED_IPS = ["192.168.0.1"]
-
-def detect_sql_injection(input_data):
-    return bool(re.search(SQL_INJECTION_PATTERN, input_data, re.IGNORECASE))
-
-def detect_xss(input_data):
-    return bool(re.search(XSS_PATTERN, input_data, re.IGNORECASE))
-
-def block_ip(ip):
-    return ip in BLOCKED_IPS
-```
-
----
-
-## **📌 5. Running & Testing the WAF**
-### **Step 7: Run the Web Application**
-1. Start the Flask application:
-   ```bash
+2. *Run the web app*:
+   bash
    python app.py
-   ```
-2. Open the web browser and go to:
-   **http://127.0.0.1:5000/**
-
-### **Step 8: Test SQL Injection & XSS**
-1. Use **cURL** or **Postman** to send requests:
-   ```bash
-   curl -X POST -d "user_input=' OR 1=1 --" http://127.0.0.1:5000/submit
-   ```
-   **Expected Output:** `400 Bad Request: SQL Injection detected`
-
-2. Test XSS:
-   ```bash
-   curl -X POST -d "user_input=<script>alert('XSS')</script>" http://127.0.0.1:5000/submit
-   ```
-   **Expected Output:** `400 Bad Request: XSS detected`
+   
+   The application will be running locally on http://127.0.0.1:5000/.
 
 ---
 
-## **📌 6. Deploying to GitHub**
-### **Step 9: Initialize Git Repository**
-1. Run the following commands:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   ```
+### *3. Implement WAF Logic*
 
-### **Step 10: Create a GitHub Repository**
-1. Go to **GitHub** and create a new repository.
-2. Copy the repository URL.
+Now, we’ll add a basic WAF layer that will filter out malicious inputs before they reach the web application.
 
-### **Step 11: Push Code to GitHub**
-1. Link the local repository to GitHub:
-   ```bash
-   git remote add origin <repository-url>
-   ```
-2. Push the code:
-   ```bash
-   git push -u origin main
-   ```
+1. **Create a waf.py file**:
+   This will contain the core WAF logic to detect and block common attacks.
+
+   *Basic WAF Detection Features*:
+   - SQL Injection Detection
+   - XSS Detection
+   - Blocked IP addresses
+
+   Here's an example of how the waf.py file might look:
+
+   python
+   import re
+
+   # Simple rule for detecting SQL injection patterns
+   SQL_INJECTION_PATTERN = r"(\bselect\b|\binsert\b|\bunion\b|\b--\b|\b;\b|\bdrop\b)"
+
+   # Simple rule for detecting Cross-Site Scripting (XSS)
+   XSS_PATTERN = r"<script.*?>.*?</script>"
+
+   # Blocked IPs (e.g., a blacklist of known malicious IPs)
+   BLOCKED_IPS = ["192.168.0.1"]
+
+   def detect_sql_injection(input_data):
+       if re.search(SQL_INJECTION_PATTERN, input_data, re.IGNORECASE):
+           return True
+       return False
+
+   def detect_xss(input_data):
+       if re.search(XSS_PATTERN, input_data, re.IGNORECASE):
+           return True
+       return False
+
+   def block_ip(ip):
+       if ip in BLOCKED_IPS:
+           return True
+       return False
+   
+
+2. *Integrating WAF with Flask App*:
+   You need to integrate the WAF logic with your Flask web application, so it can filter requests before they reach your endpoints.
+
+   Modify the app.py file:
+
+   python
+   from flask import Flask, request, abort
+   from waf import detect_sql_injection, detect_xss, block_ip
+
+   app = Flask(__name__)
+
+   @app.before_request
+   def check_security():
+       # Get the user's IP address
+       user_ip = request.remote_addr
+
+       # Block request if IP is in blocked list
+       if block_ip(user_ip):
+           abort(403, description="Your IP is blocked.")
+
+       # Check for SQL injection in the query string, form data, or JSON
+       for key in request.form.keys():
+           if detect_sql_injection(request.form[key]):
+               abort(400, description="SQL Injection attempt detected.")
+           if detect_xss(request.form[key]):
+               abort(400, description="XSS attempt detected.")
+       
+       for key in request.args.keys():
+           if detect_sql_injection(request.args[key]):
+               abort(400, description="SQL Injection attempt detected.")
+           if detect_xss(request.args[key]):
+               abort(400, description="XSS attempt detected.")
+
+   @app.route('/')
+   def home():
+       return "Welcome to the Web App!"
+
+   @app.route('/submit', methods=['POST'])
+   def submit():
+       user_input = request.form.get('user_input')
+       return f"You entered: {user_input}"
+
+   if __name__ == '__main__':
+       app.run(debug=True)
+   
 
 ---
 
-## **📌 7. Deploying to Heroku**
-### **Step 12: Create a Procfile**
-1. Inside the **web_app_firewall** folder, create a file named **Procfile** (without extension) and add:
-   ```
-   web: gunicorn app:app
-   ```
+### *4. Testing the WAF*
 
-### **Step 13: Deploy to Heroku**
-1. Login to Heroku:
-   ```bash
-   heroku login
-   ```
-2. Create a Heroku app:
-   ```bash
-   heroku create my-waf-app
-   ```
-3. Deploy the code:
-   ```bash
-   git push heroku main
-   ```
+1. *Run your Flask Application* again:
+   bash
+   python app.py
+   
+
+2. *Test the WAF*:
+   - Open your browser or use a tool like Postman to send requests to the application.
+   - *Test SQL Injection*: Try submitting input like ' OR 1=1 --.
+   - *Test XSS*: Try submitting input like <script>alert('XSS')</script>.
+   - *Test Blocked IP*: If you’re testing locally, you can spoof the IP by modifying the Flask app to simulate a blocked IP address.
+
+3. *Verify that the WAF blocks malicious requests*:
+   - SQL injection attempts should result in a 400 Bad Request response.
+   - XSS attempts should also return a 400 Bad Request response.
+   - Blocked IP addresses should return a 403 Forbidden response.
 
 ---
 
-## **📌 8. Troubleshooting & Error Solutions**
-|                  Error                         |           Cause          |                         Solution                                            |
-|------------------------------------------------|--------------------------|-----------------------------------------------------------------------------|
-| `python: command not found`                    | Python not installed     | Install Python from [python.org](https://www.python.org/downloads/)         |
-| `ModuleNotFoundError: No module named 'flask'` | Flask not installed      | Run `pip install Flask`                                                     |
-| `git: command not found`                       | Git not installed        | Install from [git-scm.com](https://git-scm.com/downloads)                   |
-| `heroku: command not found`                    | Heroku CLI not installed | Install from [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) |
-| `fatal: not a git repository`                  | Git not initialized      | Run `git init` in project folder                                            |
+### *5. Enhance Your WAF (Optional)*
+
+After building the basic functionality, you can enhance the WAF by adding more complex filtering techniques such as:
+- *Rate Limiting*: Prevent DDoS attacks by limiting the number of requests a user can make within a set time.
+- *Advanced Signature-based Detection*: Add more sophisticated detection patterns for different attack types.
+- *Logging and Alerts*: Set up logging to capture attack attempts and alert administrators.
+- *Deploy the WAF*: Deploy your Flask app on a cloud service (AWS, Heroku, etc.) for real-world testing.
 
 ---
 
-## **✅ Conclusion**
-You have successfully built and deployed a **basic Web Application Firewall (WAF)** that protects web applications from SQL Injection and XSS attacks. 🚀  
+### *6. Final Testing and Deployment*
 
-If you need further help, feel free to ask! 🎯
+1. *Test all edge cases*: Make sure you test various types of attack vectors and also ensure legitimate traffic is not blocked.
+2. *Deploy to Production*: Deploy the app and the WAF to a production server once it’s ready for real-world traffic.
+3. *Ongoing Improvements*: Keep improving your WAF by adding new detection rules and fine-tuning the existing ones.
+
+---
+
+### *Conclusion*
+
+Building a basic Web Application Firewall is a fantastic project for freshers looking to dive into web security. This project covers:
+- *Basic Flask web application creation*
+- *WAF implementation using Python*
+- *Traffic filtering based on common attack patterns*
+
+As you progress, you can refine your WAF with more advanced techniques, such as machine learning-based detection or integration with other security services.
