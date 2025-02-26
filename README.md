@@ -116,11 +116,18 @@ git push heroku main
 
 ---
 
-## **🎯 Author**
-👤 **MANISH M NAIK** – *Developer*  
-📧 Contact: [your-manishmnaik20@gmail.com](mailto:your-manishmnaik20@gmail.com)  
-🔗 [https://github.com/manishnaik20]
+## ⭐ **Contribute**  
+Want to improve this project?  
+- **Fork the repository**  
+- **Submit a pull request** with improvements  
+- **Report bugs or suggest features** in the Issues section  
+
 ---
+
+## 🎯 **Author**  
+👤 **Manish Naik** 
+📩 [Manishmnaik20@gmail.com]  
+🔗 [https://github.com/manishnaik20]  
 
 ## **📌 License**
 This project is open-source and available under the **MIT License**.
