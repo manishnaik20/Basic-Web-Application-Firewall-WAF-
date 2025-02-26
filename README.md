@@ -113,15 +113,11 @@ git push heroku main
 | `ModuleNotFoundError: No module named 'flask'` | Run `pip install Flask` |
 | `git: command not found` | Install Git from [git-scm.com](https://git-scm.com/downloads) |
 | `heroku: command not found` | Install Heroku CLI from [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) |
-
-
-
-
+---
 ### **Step-by-Step Guide to Executing the Web Application Firewall (WAF) Project**  
 
 This guide will walk you through setting up and running a **basic Web Application Firewall (WAF)** using Python and Flask. The WAF will protect a simple web application from **SQL injection (SQLi), Cross-Site Scripting (XSS), and IP-based attacks**.  
 
----
 
 ## **1. Set Up Your Development Environment**  
 
